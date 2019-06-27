@@ -1,6 +1,6 @@
 //library
 var {mongoose}=require('./db/mongoose');
-var {todom}=require('./models/Todo');
+var {todo}=require('./models/Todo'); 
 var {Users}=require('./models/Users');
 
 var express=require('express');
@@ -8,17 +8,24 @@ var bodyparser=require('body-parser');
 
 var app=express();
 app.use(bodyparser.json());
-app.post('/todo',(req,res)=>{
-	var newtodo=new todom({
+app.post('/todos',(req,res)=>{
+	var newtodo=new todo({
 		text:req.body.text,
 		completed:req.body.completed,
-		time:req.body.time
+		createdAt:req.body.createdAt
 	});
     newtodo.save().then((doc)=>{
       res.send(doc);
     },(e)=>{
     	res.status(400).send(e);
     });
+});
+app.get('/todos',(req,res)=>{
+	todo.find().then((todos)=>{
+       res.send({todos});
+	},(e)=>{
+		res.status(400).send(e);
+	});
 });
 // app.post('/todo',(req,res)=>{
 // 	var newtodo=new todom({
@@ -33,7 +40,8 @@ app.post('/todo',(req,res)=>{
 
 app.listen(3000,()=>{
 	console.log('started app on port 3000');
-})
+});
+module.exports.app={app};
 
 
 

@@ -1,5 +1,5 @@
 var mongoose=require('mongoose');
-var todom=mongoose.model('todo',{
+var todo=mongoose.model('todos',{
 	text:{
 		type:String
 	},
@@ -10,4 +10,4 @@ var todom=mongoose.model('todo',{
         type:Number
 	}
 });
-module.exports={todom};
+module.exports={todo};
