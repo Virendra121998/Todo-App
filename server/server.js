@@ -5,7 +5,7 @@ var {Users}=require('./models/Users');
 
 var express=require('express');
 var bodyparser=require('body-parser');
-
+var port=process.env.PORT||3000;
 var app=express();
 app.use(bodyparser.json());
 app.post('/todos',(req,res)=>{
@@ -21,8 +21,8 @@ app.post('/todos',(req,res)=>{
     });
 });
 app.get('/todos',(req,res)=>{
-	todo.find().then((todos)=>{
-       res.send({todos});
+	todo.find().then((docs)=>{
+       res.send({docs});
 	},(e)=>{
 		res.status(400).send(e);
 	});
@@ -47,7 +47,7 @@ app.get('/todos/:id',(req,res)=>{
 		res.status(404).send();
 	});
 });
-app.listen(3000,()=>{
+app.listen(port,()=>{
 	console.log('started app on port 3000');
 });
 module.exports={app};
