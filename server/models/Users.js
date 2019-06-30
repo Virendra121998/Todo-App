@@ -41,6 +41,20 @@ Userschema.methods.generateAuthtoken=function(){
     	return token;
     });
 };
+Userschema.statics.findByToken=function(token){
+	var User=this;
+	var decoded;
+	try{
+		decoded=jwt.verify(token,"secret");
+	}catch(e){
+
+	}
+	return User.findOne({
+		'_id':decoded._id,
+		'tokens.access':'auth',
+		'tokens.token':token,
+	});
+};
 var user=mongoose.model('Users',Userschema);
 
 module.exports={user};

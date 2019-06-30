@@ -2,6 +2,7 @@
 var {mongoose}=require('./db/mongoose');
 var {todo}=require('./models/Todo'); 
 var {user}=require('./models/Users');
+var {authenticate}=require('./middleware/authenticate');
 
 var express=require('express');
 var bodyparser=require('body-parser');
@@ -39,6 +40,9 @@ app.post('/users',(req,res)=>{
 	})
 	.catch((e)=>res.status(400).send(e));
 });
+app.get('/users/me',authenticate,(req,res)=>{
+	res.send(req.docs);
+	});
 // app.post('/todo',(req,res)=>{
 // 	var newtodo=new todom({
 // 		text:req.body.text
