@@ -1,7 +1,7 @@
 //library
 var {mongoose}=require('./db/mongoose');
 var {todo}=require('./models/Todo'); 
-var {Users}=require('./models/Users');
+var {user}=require('./models/Users');
 
 var express=require('express');
 var bodyparser=require('body-parser');
@@ -26,6 +26,18 @@ app.get('/todos',(req,res)=>{
 	},(e)=>{
 		res.status(400).send(e);
 	});
+});
+app.post('/users',(req,res)=>{
+	var User=new user({
+		email:req.body.email,
+		password:req.body.password,
+	});
+	User.save().then(()=>{
+		return User.generateAuthtoken();
+	}).then((token)=>{
+		res.header('x-auth',token).send(User);
+	})
+	.catch((e)=>res.status(400).send(e));
 });
 // app.post('/todo',(req,res)=>{
 // 	var newtodo=new todom({
