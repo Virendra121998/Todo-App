@@ -3,18 +3,10 @@ var expect=require('expect');
 var {ObjectID}=require('mongodb');
 var {app}=require('./../server');
 var{todo}=require('./../models/Todo');
-const t=[{
-	_id: new ObjectID(),
-	text:"1 test todo"
-},{
-	_id:new ObjectID(),
-	text:"2 test todo"
-}];
-beforeEach((done)=>{
-	todo.remove({}).then(()=>{
-		return todo.insertMany(t);
-	}).then((docs)=>{done()});
-});
+const {t,u,populatetodos,populateusers}=require('./seed/seed');
+
+beforeEach(populateusers);
+beforeEach(populatetodos);
 // describe("post /todos",()=>{
 // 	it('should create a new todo',(done)=>{
 //       var text='Test todo text';
@@ -70,4 +62,29 @@ describe('get /todos/id',()=>{
 		expect(404)
 		.end(done);
 	});
+});
+describe('get/users/me',()=>{
+	it('should return validation errors',(done)=>{
+		var email='virendra';
+		var password='123dsa';
+		request(app)
+		.get('/users/me')
+		.expect(500)
+		.expect((res)=>{
+			expect(res.body).toEqual({});
+
+		})
+		.end(done)
+	});
+   it('should not create email if it is already in use',(done)=>{
+   	   var email=u[0].email;
+   	   var password=u[0].password;
+   	   request(app)
+   	   .post('/users')
+   	   .send({email,password})
+   	   .expect(400)
+
+   	   .end(done)
+   });
+
 });
