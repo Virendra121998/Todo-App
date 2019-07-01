@@ -32,7 +32,7 @@ Userschema.methods.toJSON=function(){
 	var User=this;
 	var Userobject=User.toObject();
 	return _.pick(Userobject,['_id','email']);
-}
+};
 Userschema.methods.generateAuthtoken=function(){
 	var User=this;
 	var access='auth';
@@ -41,6 +41,14 @@ Userschema.methods.generateAuthtoken=function(){
     return User.save().then(()=>{
     	return token;
     });
+};
+Userschema.methods.removeToken=function(token){
+	var User=this;
+	return User.update({
+		$pull:{
+			tokens:{token}
+		}
+	});
 };
 Userschema.statics.findByToken=function(token){
 	var User=this;
@@ -70,6 +78,21 @@ Userschema.pre('save',function(next){
 	else
 		next();
 });
+Userschema.statics.findByCredentials=function(email,password){
+	var User=this;
+	return User.findOne({email}).then((user)=>{
+		if(!user)
+			return Promise.reject();
+        return new Promise((resolve,reject)=>{
+        	bcrypt.compare(password,user.password,(err,res)=>{
+              if(res)
+              	resolve(user);
+              else
+              	reject();
+        	});
+        });
+	});
+};
 var user=mongoose.model('Users',Userschema);
 
 module.exports={user};

@@ -3,6 +3,7 @@ var {mongoose}=require('./db/mongoose');
 var {todo}=require('./models/Todo'); 
 var {user}=require('./models/Users');
 var {authenticate}=require('./middleware/authenticate');
+const bcrypt=require('bcryptjs'); 
 
 var express=require('express');
 var bodyparser=require('body-parser');
@@ -43,6 +44,23 @@ app.post('/users',(req,res)=>{
 app.get('/users/me',authenticate,(req,res)=>{
 	res.send(req.docs);
 	});
+app.post('/users/login',(req,res)=>{
+	
+	user.findByCredentials(req.body.email,req.body.password).then((result)=>{
+		return result.generateAuthtoken().then((token)=>{
+			res.header('x-auth',token).send(result);
+		});
+	}).catch((e)=>{
+		res.status(400).send("could not find the user");
+	});
+});
+app.delete('/users/logout',authenticate,(req,res)=>{
+	req.docs.removeToken(req.token).then(()=>{
+		res.status(200).send('logged out');
+	}).catch((e)=>{
+		res.status(400).send();
+	});
+});
 // app.post('/todo',(req,res)=>{
 // 	var newtodo=new todom({
 // 		text:req.body.text
