@@ -3,6 +3,7 @@ var expect=require('expect');
 var {ObjectID}=require('mongodb');
 var {app}=require('./../server');
 var{todo}=require('./../models/Todo');
+var {user}=require('./../models/Users');
 const {t,u,populatetodos,populateusers}=require('./seed/seed');
 
 beforeEach(populateusers);
@@ -87,4 +88,20 @@ describe('get/users/me',()=>{
    	   .end(done)
    });
 
+});
+describe('delete/users/logout',()=>{
+	it('should delete the token ',(done)=>{
+		request(app)
+		.delete('/users/logout')
+		.set('x-auth',u[0].tokens[0].token)
+		.expect(200)
+		.end((err,res)=>{
+			if(err)
+				return done(err);
+		    user.findById(u[0]._id).then((result)=>{
+		    	expect(result.tokens.length).toBe(0);
+		    	done();
+		    }).catch((e)=>done(e));	
+		});
+	});
 });
