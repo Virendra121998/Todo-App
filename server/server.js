@@ -10,21 +10,22 @@ var bodyparser=require('body-parser');
 var port=process.env.PORT||3000;
 var app=express();
 app.use(bodyparser.json());
-app.post('/todos',(req,res)=>{
+app.post('/todos',authenticate,(req,res)=>{
 	var newtodo=new todo({
 		text:req.body.text,
-		completed:req.body.completed,
-		createdAt:req.body.createdAt
+		creator:req.docs._id
 	});
     newtodo.save().then((doc)=>{
-      res.send(doc);
+      res.send({doc});
     },(e)=>{
     	res.status(400).send(e);
     });
 });
-app.get('/todos',(req,res)=>{
-	todo.find().then((docs)=>{
-       res.send({docs});
+app.get('/todos',authenticate,(req,res)=>{
+	todo.find({
+		creator:req.docs._id
+	}).then((result)=>{
+       res.send({result});
 	},(e)=>{
 		res.status(400).send(e);
 	});
@@ -48,7 +49,7 @@ app.post('/users/login',(req,res)=>{
 	
 	user.findByCredentials(req.body.email,req.body.password).then((result)=>{
 		return result.generateAuthtoken().then((token)=>{
-			res.header('x-auth',token).send(result);
+			res.header('x-auth',token).send({result});
 		});
 	}).catch((e)=>{
 		res.status(400).send("could not find the user");
@@ -71,9 +72,12 @@ app.delete('/users/logout',authenticate,(req,res)=>{
 //     	res.status(400).send(e);
 //     });
 // });
-app.get('/todos/:id',(req,res)=>{
+app.get('/todos/:id',authenticate,(req,res)=>{
 	var id=req.params.id;
-	todo.findById(id).then((docs)=>{
+	todo.findOne({
+		_id:id,
+        creator:req.docs._id
+	}).then((docs)=>{
 		if(!docs)
 		 res.status(404).send();
         res.send({docs});
